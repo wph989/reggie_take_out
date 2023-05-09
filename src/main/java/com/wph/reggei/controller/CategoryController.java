@@ -11,6 +11,8 @@ import org.apache.ibatis.annotations.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/category")
 @Slf4j
@@ -52,5 +54,18 @@ public class CategoryController {
         // categoryService.removeById(id);
         categoryService.remove(id);
         return R.success("删除成功");
+    }
+
+    // 根据条件查询分类数据
+    @GetMapping("/list")
+    public R<List<Category>> list(Category category){
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+        // 添加查询条件
+        Integer type = category.getType();
+        queryWrapper.eq(type != null, Category::getType, type);
+        // 添加排序条件
+        queryWrapper.orderByAsc(Category::getSort).orderByDesc(Category::getUpdateTime);
+        List<Category> list = categoryService.list(queryWrapper);
+        return R.success(list);
     }
 }
